@@ -42,3 +42,9 @@ $ du -sh ./data/*
 562M    ./data/full_history.zip
 
 ```
+
+Since the stock symbol is only part of the filename and not the content, we need to come up with a way to add that to
+tour dataset. We also need to verify that the csv was converted correctly by duckdb.
+
+Let's add some tests.
+
