@@ -26,6 +26,8 @@ date,volume,open,high,low,close,adj close
 2023-12-22,1900,55.900001525878906,56.119998931884766,55.869998931884766,55.880001068115234,55.71699905395508
 ```
 
+
+
 We can combine the csv files to parquet using duckdb:
 
 ```SQL
@@ -46,5 +48,13 @@ $ du -sh ./data/*
 Since the stock symbol is only part of the filename and not the content, we need to come up with a way to add that to
 tour dataset. We also need to verify that the csv was converted correctly by duckdb.
 
-Let's add some tests.
 
+Let's have a look at the news data (`All_external.csv`):
+
+```csv
+Date,Article_title,Stock_symbol,Url,Publisher,Author,Article,Lsa_summary,Luhn_summary,Textrank_summary,Lexrank_summary
+2020-06-05 06:30:54 UTC,Stocks That Hit 52-Week Highs On Friday,A,https://www.benzinga.com/news/20/06/16190091/stocks-that-hit-52-week-highs-on-friday,Benzinga Insights,,,,,,
+2020-06-03 06:45:20 UTC,Stocks That Hit 52-Week Highs On Wednesday,A,https://www.benzinga.com/news/20/06/16170189/stocks-that-hit-52-week-highs-on-wednesday,Benzinga Insights,,,,,,
+2020-05-26 00:30:07 UTC,71 Biggest Movers From Friday,A,https://www.benzinga.com/news/20/05/16103463/71-biggest-movers-from-friday,Lisa Levin,,,,,,
+2020-05-22 08:45:06 UTC,46 Stocks Moving In Friday's Mid-Day Session,A,https://www.benzinga.com/news/20/05/16095921/46-stocks-moving-in-fridays-mid-day-session,Lisa Levin,,,,,,
+```
