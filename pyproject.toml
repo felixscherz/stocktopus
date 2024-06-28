@@ -1,0 +1,17 @@
+[project]
+name = "stocktopus"
+dynamic = ["version"]
+description = "scrape financial news and stock prices from the internet"
+requires-python = ">=3.12"
+authors = [
+  { name = "Felix Scherz", email = "felixwscherz@gmail.com" },
+]
+readme = "README.md"
+
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "setuptools-scm>=8.0"
+]
+build-backend = "setuptools.build_meta"
+
