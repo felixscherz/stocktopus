@@ -28,10 +28,11 @@ date,volume,open,high,low,close,adj close
 
 
 
-We can combine the csv files to parquet using duckdb:
+We can combine the csv files to parquet using duckdb, using `filename=true` to include the filename which contains the
+symbol as an extra column.
 
 ```SQL
-CREATE TEMP TABLE stock_prices AS SELECT * FROM read_csv('data/full_history/*.csv');
+CREATE TEMP TABLE stock_prices AS SELECT * FROM read_csv('data/full_history/*.csv', filename=true);
 COPY (SELECT * FROM stock_prices) TO 'data/full_history.parquet' (FORMAT PARQUET);
 ```
 
@@ -45,10 +46,6 @@ $ du -sh ./data/*
 
 ```
 
-Since the stock symbol is only part of the filename and not the content, we need to come up with a way to add that to
-tour dataset. We also need to verify that the csv was converted correctly by duckdb.
-
-
 Let's have a look at the news data (`All_external.csv`):
 
 ```csv
@@ -57,4 +54,20 @@ Date,Article_title,Stock_symbol,Url,Publisher,Author,Article,Lsa_summary,Luhn_su
 2020-06-03 06:45:20 UTC,Stocks That Hit 52-Week Highs On Wednesday,A,https://www.benzinga.com/news/20/06/16170189/stocks-that-hit-52-week-highs-on-wednesday,Benzinga Insights,,,,,,
 2020-05-26 00:30:07 UTC,71 Biggest Movers From Friday,A,https://www.benzinga.com/news/20/05/16103463/71-biggest-movers-from-friday,Lisa Levin,,,,,,
 2020-05-22 08:45:06 UTC,46 Stocks Moving In Friday's Mid-Day Session,A,https://www.benzinga.com/news/20/05/16095921/46-stocks-moving-in-fridays-mid-day-session,Lisa Levin,,,,,,
+```
+
+It seems like we need to be careful with line endings for that file, since it ends with `\r\n` instead of `\n`. We can
+tell duckdb as much when reading the csv:
+
+```SQL
+CREATE TEMP TABLE news AS SELECT * FROM read_csv('data/All_external.csv', new_line='\r\n');
+COPY (SELECT * FROM news) TO 'data/All_external.parquet' (FORMAT PARQUET);
+```
+
+Again, comparing the file sizes we see a reduction in file size from 5.3GB down to ~2.5GB:
+
+```bash
+$ du -sh ./data/*
+5.3G    ./data/All_external.csv
+2.4G    ./data/All_external.parquet
 ```
