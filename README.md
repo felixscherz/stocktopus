@@ -71,3 +71,47 @@ $ du -sh ./data/*
 5.3G    ./data/All_external.csv
 2.4G    ./data/All_external.parquet
 ```
+
+What's left now is the `nasdaq_external_data.csv` file, which is almost 22GB in size.
+
+```sql
+CREATE TEMP TABLE nasdaq_news AS SELECT * FROM read_csv('data/nasdaq_exteral_data.csv', newline='\r\n');
+COPY (SELECT * FROM nasdaq_news) TO 'data/nasdaq_external_data.parquet' (FORMAT PARQUET);
+```
+
+Ok this didn't work, I did abort after around 10 minutes of sitting at 100% CPU. Let's try again without actually
+creating the table:
+
+```sql
+COPY
+    (select * FROM read_csv('data/nasdaq_exteral_data.csv', new_line='\r\n'))
+    TO 'data/nasdaq_external_data.parquet'
+    (FORMAT PARQUET);
+```
+
+```bash
+Error: Out of Memory Error: failed to allocate data of size 512.0 MiB (25.4 GiB/25.5 GiB used)
+Database is launched in in-memory mode and no temporary directory is specified.
+Unused blocks cannot be offloaded to disk.
+
+Launch the database with a persistent storage back-end
+Or set SET temp_directory='/path/to/tmp.tmp'
+```
+
+Ok one more try with a persistant database, creating the table first and then writing it to parquet:
+
+```sql
+CREATE TABLE nasdaq_news AS SELECT * FROM read_csv('data/nasdaq_exteral_data.csv');
+```
+```bash
+Error: Out of Memory Error: could not allocate block of size 256.0 KiB (25.6 GiB/25.5 GiB used)
+```
+
+Seems like we should disable preservation of the insertion order according to this
+[stackoverflow question](https://stackoverflow.com/questions/77994828/converting-multiple-csvs-to-parquet-using-duckdb-out-of-memory)
+
+```SQL
+SET preserve_insertion_order = false;
+```
+
+With this setting duckdb was able to convert the csv to a parquet file of around 9.6GB in size.
