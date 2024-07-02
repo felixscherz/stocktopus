@@ -7,6 +7,7 @@ authors = [
   { name = "Felix Scherz", email = "felixwscherz@gmail.com" },
 ]
 readme = "README.md"
+dependencies = ["polars"]
 
 [build-system]
 requires = [
